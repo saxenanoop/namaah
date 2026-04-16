@@ -1,0 +1,358 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Nakshatra loading dot animation ──────────────────────────────────────── */
+@keyframes nakshatra-pulse {
+  0%, 100% { opacity: 0.25; transform: scale(0.8); }
+  50%       { opacity: 1;    transform: scale(1.15); }
+}
+
+:root {
+  --background: #FDFCFA;
+  --foreground: #1A1A2E;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-body), sans-serif;
+    margin: 0;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display), serif;
+  }
+
+  a {
+    text-decoration: none;
+  }
+}
+
+/* ── Navbar responsive ─────────────────────────────────────────────────── */
+
+@media (min-width: 768px) {
+  .navbar-desktop-nav { display: flex !important; }
+  .navbar-hamburger   { display: none !important; }
+  .navbar-mobile-menu { display: none !important; }
+  .navbar-cta-text    { display: inline !important; }
+}
+
+@media (max-width: 767px) {
+  .navbar-desktop-nav { display: none !important; }
+  .navbar-hamburger   { display: flex !important; }
+  .navbar-inner       { padding: 0 16px !important; }
+}
+
+/* ── Footer responsive ─────────────────────────────────────────────────── */
+
+.footer-link:hover {
+  color: #2E3A5C !important;
+}
+
+@media (max-width: 767px) {
+  .footer-inner {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    padding: 28px 24px !important;
+  }
+  .footer-disclaimer {
+    padding: 12px 24px !important;
+  }
+}
+
+/* ── Trending strip scrollbar ───────────────────────────────────────────── */
+
+.trending-track::-webkit-scrollbar       { height: 3px; }
+.trending-track::-webkit-scrollbar-track { background: transparent; }
+.trending-track::-webkit-scrollbar-thumb { background-color: #E8ECF5; border-radius: 3px; }
+
+/* ── Search page ─────────────────────────────────────────────────────────── */
+
+@media (max-width: 767px) {
+  aside[aria-label="Search filters"] { display: none !important; }
+  .mobile-filter-btn                 { display: flex !important; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   COMPREHENSIVE MOBILE RESPONSIVE RULES  (max-width: 767px)
+   Uses !important to override inline styles in JSX components.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 767px) {
+
+  /* ══════════════════════════════════════
+     HOMEPAGE — Hero
+     ══════════════════════════════════════ */
+
+  .hero-section {
+    padding: 32px 24px 28px !important;
+    min-height: unset !important;
+  }
+  .hero-heading {
+    font-size: 28px !important;
+    line-height: 1.2 !important;
+  }
+  .hero-subheading {
+    font-size: 13px !important;
+    max-width: 100% !important;
+  }
+  .hero-pills-row {
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+  .hero-nakshatra-cta {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    margin-top: 12px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Homepage — Trending strip */
+  .trending-section {
+    padding: 24px 24px 0 !important;
+  }
+  .trending-section-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 4px !important;
+  }
+
+  /* Homepage — Ad banner */
+  .ad-section {
+    padding: 12px 24px !important;
+  }
+
+  /* Homepage — Browse by theme */
+  .theme-header {
+    padding: 24px 24px 16px !important;
+  }
+  .theme-grid {
+    padding: 0 24px 32px !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+
+  /* ══════════════════════════════════════
+     SEARCH PAGE
+     ══════════════════════════════════════ */
+
+  .search-results-area {
+    padding: 16px 24px !important;
+  }
+  .search-top-bar {
+    padding: 12px 24px !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+  }
+  .search-name-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+
+  /* ══════════════════════════════════════
+     NAME DETAIL PAGE
+     ══════════════════════════════════════ */
+
+  .name-hero {
+    padding: 28px 24px !important;
+    flex-direction: column !important;
+  }
+  .name-hero-title {
+    font-size: 40px !important;
+  }
+  .name-details-section {
+    padding: 24px !important;
+  }
+  .name-details-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .name-astro-card {
+    padding: 20px !important;
+  }
+  .name-similar-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* ══════════════════════════════════════
+     NAKSHATRA PAGE
+     ══════════════════════════════════════ */
+
+  .nakshatra-heading-section {
+    padding: 32px 24px 24px !important;
+  }
+  .nakshatra-main-title {
+    font-size: 26px !important;
+  }
+  .nakshatra-form-section {
+    padding: 0 24px 32px !important;
+  }
+  .nakshatra-form-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .nakshatra-results {
+    padding: 0 24px 40px !important;
+  }
+  .nakshatra-name-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  .nakshatra-disclaimer {
+    padding: 20px 24px !important;
+  }
+
+  /* ══════════════════════════════════════
+     TRENDING PAGE
+     ══════════════════════════════════════ */
+
+  .trending-hero {
+    padding: 28px 24px !important;
+  }
+  .trending-hero-title {
+    font-size: 28px !important;
+  }
+  .trending-tab-bar {
+    padding: 0 16px !important;
+    overflow-x: auto !important;
+  }
+  .trending-grid-section {
+    padding: 24px !important;
+  }
+  .trending-name-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+  .trending-section-body {
+    padding: 24px !important;
+  }
+  .trending-celeb-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .trending-region-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .trending-seo-section {
+    padding: 28px 24px !important;
+  }
+
+  /* ══════════════════════════════════════
+     SHORTLIST PAGE
+     ══════════════════════════════════════ */
+
+  .shortlist-empty {
+    padding: 40px 24px !important;
+    min-height: unset !important;
+  }
+  .shortlist-header {
+    padding: 24px !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 16px !important;
+  }
+  .shortlist-heading {
+    font-size: 28px !important;
+  }
+  .shortlist-actions {
+    flex-direction: row !important;
+    justify-content: flex-start !important;
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+  }
+  .shortlist-table-wrap {
+    padding: 0 16px 8px !important;
+  }
+  .shortlist-surname-section {
+    padding: 24px !important;
+  }
+
+  /* ══════════════════════════════════════
+     RASHI INDEX PAGE
+     ══════════════════════════════════════ */
+
+  .rashi-hero {
+    padding: 28px 24px !important;
+  }
+  .rashi-hero-title {
+    font-size: 28px !important;
+  }
+  .rashi-grid-section {
+    padding: 28px 24px !important;
+  }
+  .rashi-card-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  /* ══════════════════════════════════════
+     RASHI DETAIL PAGE
+     ══════════════════════════════════════ */
+
+  .rashi-detail-title {
+    font-size: 34px !important;
+  }
+  .rashi-name-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+  .rashi-section-body {
+    padding: 24px !important;
+  }
+  .rashi-cta-section {
+    padding: 0 24px 32px !important;
+  }
+  .rashi-cta-card {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 16px !important;
+  }
+  .rashi-prev-next {
+    padding: 20px 24px !important;
+  }
+  .rashi-prev-next-inner {
+    flex-direction: column !important;
+    gap: 16px !important;
+  }
+
+  /* ══════════════════════════════════════
+     HINDI PAGE
+     ══════════════════════════════════════ */
+
+  .hindi-hero {
+    padding: 32px 24px !important;
+  }
+  .hindi-hero-title {
+    font-size: 28px !important;
+  }
+  .hindi-card-section {
+    padding: 24px !important;
+  }
+  .hindi-card-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+  .hindi-seo-section {
+    padding: 28px 24px !important;
+  }
+  .hindi-trend-section {
+    padding: 24px !important;
+  }
+  .hindi-trend-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+  .hindi-quick-links {
+    padding: 24px !important;
+  }
+  .hindi-quick-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+
+} /* end @media (max-width: 767px) */

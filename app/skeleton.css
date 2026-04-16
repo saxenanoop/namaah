@@ -1,0 +1,15 @@
+/* Skeleton animation — used by all loading.tsx files */
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.45; }
+}
+.skeleton {
+  background-color: #E8ECF5;
+  border-radius: 6px;
+  animation: skeleton-pulse 1.6s ease-in-out infinite;
+}
+.skeleton-dark {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  animation: skeleton-pulse 1.6s ease-in-out infinite;
+}
