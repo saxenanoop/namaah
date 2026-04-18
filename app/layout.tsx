@@ -4,6 +4,7 @@ import Script from "next/script";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { Analytics } from "@vercel/analytics/react";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -86,6 +87,7 @@ export default function RootLayout({
         />
         <Navbar />
         {children}
+        <Analytics />
         <Footer />
       </body>
     </html>
