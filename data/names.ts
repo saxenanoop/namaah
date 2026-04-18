@@ -19,6 +19,30 @@ export interface BabyName {
   celebrityConnection: string;
 }
 
+import { boysA } from "./extra/boys-a";
+import { boysB } from "./extra/boys-b";
+import { boysC } from "./extra/boys-c";
+import { boysD } from "./extra/boys-d";
+import { boysE } from "./extra/boys-e";
+import { boysF } from "./extra/boys-f";
+import { boysG } from "./extra/boys-g";
+import { boysH } from "./extra/boys-h";
+
+import { girlsA } from "./extra/girls-a";
+import { girlsB } from "./extra/girls-b";
+import { girlsC } from "./extra/girls-c";
+import { girlsD } from "./extra/girls-d";
+import { girlsE } from "./extra/girls-e";
+import { girlsF } from "./extra/girls-f";
+import { girlsG } from "./extra/girls-g";
+import { girlsH } from "./extra/girls-h";
+import { girlsI } from "./extra/girls-i";
+import { boysI } from "./extra/boys-i";
+import { boysJ } from "./extra/boys-j";
+import { girlsJ } from "./extra/girls-j";
+import { girlsK } from "./extra/girls-k";
+import { girlsL } from "./extra/girls-l";
+
 export const names: BabyName[] = [
   // ─── BOYS (20) ─────────────────────────────────────────────────────────────
 
@@ -1288,6 +1312,28 @@ export const names: BabyName[] = [
     numerologyNumber: 6,
     celebrityConnection: "",
   },
+  ...boysA,
+  ...boysB,
+  ...boysC,
+  ...boysD,
+  ...boysE,
+  ...boysF,
+  ...boysG,
+  ...boysH,
+  ...girlsA,
+  ...girlsB,
+  ...girlsC,
+  ...girlsD,
+  ...girlsE,
+  ...girlsF,
+  ...girlsG,
+  ...girlsH,
+  ...boysI,
+  ...boysJ,
+  ...girlsI,
+  ...girlsJ,
+  ...girlsK,
+  ...girlsL,
 ];
 
 // Quick sanity check — remove in production
