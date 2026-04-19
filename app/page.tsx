@@ -7,6 +7,8 @@ import { names } from "@/data/names";
 import type { BabyName } from "@/data/names";
 import NameCard from "@/components/names/NameCard";
 import AdBanner from "@/components/ui/AdBanner";
+import PersonalizationFlow from "@/components/home/PersonalizationFlow";
+import WelcomeBoard from "@/components/home/WelcomeBoard";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Quick-filter pill config
@@ -28,9 +30,28 @@ const FILTER_PILLS = [
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function HomePage() {
+  const [mounted, setMounted] = useState(false);
+  const [profile, setProfile] = useState<any>(null);
+
+  useEffect(() => {
+    setMounted(true);
+    try {
+      const saved = localStorage.getItem("namaah-profile");
+      if (saved) {
+        setProfile(JSON.parse(saved));
+      }
+    } catch {}
+  }, []);
+
   return (
     <main>
-      <HeroSection />
+      {!mounted ? (
+        <section style={{ height: "500px", backgroundColor: "#FDF4EE" }} />
+      ) : profile ? (
+        <WelcomeBoard profile={profile} />
+      ) : (
+        <PersonalizationFlow onComplete={(p) => setProfile(p)} />
+      )}
       <TrendingStrip />
       {/* Ad unit — horizontal between trending and theme sections */}
       <div style={{ padding: "20px 48px", backgroundColor: "#F8F9FA" }} className="ad-section">
