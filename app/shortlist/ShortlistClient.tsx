@@ -33,7 +33,7 @@ const GENDER_BADGE: Record<
 
 export default function ShortlistClient() {
   const searchParams   = useSearchParams();
-  const { slugs, remove, count } = useShortlist();
+  const { items, remove, count } = useShortlist();
 
   const [toast,   setToast]   = useState(false);
   const [surname, setSurname] = useState("");
@@ -47,35 +47,51 @@ export default function ShortlistClient() {
 
     // Merge URL slugs into localStorage without exceeding MAX_SHORTLIST
     const sharedSlugs = sharedParam.split(",").filter(Boolean);
-    const raw = localStorage.getItem("namaah-shortlist");
-    let current: string[] = [];
-    try { current = JSON.parse(raw ?? "[]"); } catch { current = []; }
+    const sharedNames = sharedSlugs
+      .map((slug) => names.find((n) => n.slug === slug))
+      .filter((n): n is BabyName => Boolean(n));
 
-    const merged = Array.from(new Set([...current, ...sharedSlugs])).slice(0, MAX_SHORTLIST);
+    const raw = localStorage.getItem("namaah-shortlist");
+    let current: BabyName[] = [];
+    try {
+      const parsed = JSON.parse(raw ?? "[]");
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        if (typeof parsed[0] === "string") {
+          current = parsed
+            .map((slug) => names.find((n) => n.slug === slug))
+            .filter((n): n is BabyName => Boolean(n));
+        } else {
+          current = parsed;
+        }
+      }
+    } catch { current = []; }
+
+    const combined = [...current, ...sharedNames];
+    // Deduplicate by slug
+    const merged = Array.from(new Map(combined.map(n => [n.slug, n])).values()).slice(0, MAX_SHORTLIST);
+    
     localStorage.setItem("namaah-shortlist", JSON.stringify(merged));
     // Let the useShortlist hook pick up the updated storage via its sync event
     window.dispatchEvent(new Event("namaah:shortlist-updated"));
   }, [searchParams]);
 
   // ── Derived data ──────────────────────────────────────────────────────────
-  const savedNames: BabyName[] = slugs
-    .map((slug) => names.find((n) => n.slug === slug))
-    .filter((n): n is BabyName => Boolean(n));
+  const savedNames: BabyName[] = items;
 
   // ── Actions ───────────────────────────────────────────────────────────────
 
   const handleShare = useCallback(() => {
-    const url = `${window.location.origin}/shortlist?names=${slugs.join(",")}`;
+    const url = `${window.location.origin}/shortlist?names=${items.map((n) => n.slug).join(",")}`;
     navigator.clipboard.writeText(url).catch(() => {});
     setToast(true);
     setTimeout(() => setToast(false), 2500);
-  }, [slugs]);
+  }, [items]);
 
   const handleClearAll = useCallback(() => {
     if (window.confirm("Remove all names from your shortlist?")) {
-      slugs.forEach((s) => remove(s));
+      items.forEach((n) => remove(n.slug));
     }
-  }, [slugs, remove]);
+  }, [items, remove]);
 
   // SSR safety — don't render until mounted (localStorage is client-only)
   if (!mounted) return null;

@@ -113,7 +113,7 @@ export default function NameDetailPage({
 
           {/* Shortlist CTA */}
           <div style={{ marginTop: "20px" }}>
-            <ShortlistButton slug={name.slug} name={name.name} />
+            <ShortlistButton nameObj={name} />
           </div>
         </div>
       </header>

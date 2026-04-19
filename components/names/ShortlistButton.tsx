@@ -3,18 +3,19 @@
 import { useState } from "react";
 import { useShortlist } from "@/components/names/NameCard";
 
+import type { BabyName } from "@/data/names";
+
 interface ShortlistButtonProps {
-  slug: string;
-  name: string;
+  nameObj: BabyName;
 }
 
-export default function ShortlistButton({ slug, name }: ShortlistButtonProps) {
+export default function ShortlistButton({ nameObj }: ShortlistButtonProps) {
   const { isSaved, toggle } = useShortlist();
-  const saved = isSaved(slug);
+  const saved = isSaved(nameObj.slug);
   const [pulse, setPulse] = useState(false);
 
   function handleClick() {
-    toggle(slug);
+    toggle(nameObj);
     if (!saved) {
       setPulse(true);
       setTimeout(() => setPulse(false), 400);
@@ -24,7 +25,7 @@ export default function ShortlistButton({ slug, name }: ShortlistButtonProps) {
   return (
     <button
       onClick={handleClick}
-      aria-label={saved ? `Remove ${name} from shortlist` : `Save ${name} to shortlist`}
+      aria-label={saved ? `Remove ${nameObj.name} from shortlist` : `Save ${nameObj.name} to shortlist`}
       aria-pressed={saved}
       style={{
         display:         "inline-flex",
