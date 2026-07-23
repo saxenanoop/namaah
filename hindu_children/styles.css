@@ -1,0 +1,468 @@
+/* =========================================
+   BABYNAMER - FirstCry-style CSS
+   Clean, white, content-first design
+   ========================================= */
+
+* {
+    margin: 0; padding: 0; box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', Arial, sans-serif;
+    background: #f5f5f5;
+    color: #333;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+a { text-decoration: none; color: #e91e8c; }
+a:hover { text-decoration: underline; }
+
+/* ---- TOP BAR ---- */
+.top-bar {
+    background: #222;
+    color: #fff;
+    padding: 10px 0;
+    font-size: 14px;
+}
+.top-bar-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.site-name {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #f48da7;
+    letter-spacing: 0.5px;
+}
+.top-bar-tagline {
+    font-size: 13px;
+    color: #aaa;
+}
+
+/* ---- PAGE WRAPPER ---- */
+.page-wrapper {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* ---- HERO / FILTER SECTION ---- */
+.hero-section {
+    background: #fff;
+    border-radius: 8px;
+    padding: 32px 28px;
+    margin: 24px 0 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.hero-section h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #222;
+    margin-bottom: 10px;
+}
+
+.hero-desc {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 24px;
+    max-width: 700px;
+}
+
+/* Filter Bar - 4 dropdowns + button */
+.filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 14px;
+}
+
+.filter-select-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.filter-select-group label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.filter-select-group select {
+    padding: 10px 34px 10px 12px;
+    border: 1px solid #d0d0d0;
+    border-radius: 5px;
+    background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23888' d='M6 8L0 0h12z'/%3E%3C/svg%3E") no-repeat right 12px center;
+    appearance: none;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+    min-width: 150px;
+}
+
+.filter-select-group select:focus {
+    outline: none;
+    border-color: #e91e8c;
+}
+
+.btn-find {
+    background: #e91e8c;
+    color: #fff;
+    border: none;
+    padding: 10px 28px;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: background 0.2s;
+    align-self: flex-end;
+    height: 42px;
+}
+
+.btn-find:hover { background: #c01578; }
+
+
+/* ---- BROWSE SECTION (A-Z + Gender Icons) ---- */
+.browse-section {
+    background: #fff;
+    border-radius: 8px;
+    padding: 28px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.section-heading {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #222;
+    margin-bottom: 20px;
+}
+
+/* Gender Icon Buttons */
+.gender-icons-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.gender-icon-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #fff;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 14px 24px;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 90px;
+    gap: 6px;
+}
+
+.gender-icon-btn:hover,
+.gender-icon-btn.active {
+    border-color: #e91e8c;
+    background: #fff5fa;
+}
+
+.gender-icon {
+    font-size: 1.6rem;
+    line-height: 1;
+}
+
+.girl-icon { color: #e91e8c; }
+.boy-icon { color: #2196f3; }
+.unisex-icon { color: #9c27b0; }
+
+.gender-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #555;
+    letter-spacing: 0.5px;
+}
+
+
+/* A-Z Alphabet Row */
+.alphabet-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.alpha-btn {
+    background: #e91e8c;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.alpha-btn:hover {
+    background: #c01578;
+    transform: scale(1.1);
+}
+
+.alpha-btn.active {
+    background: #222;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+
+/* ---- RESULTS SECTION ---- */
+.results-section {
+    background: #fff;
+    border-radius: 8px;
+    padding: 24px 28px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    min-height: 200px;
+}
+
+.results-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #eee;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.search-inline {
+    padding: 9px 14px;
+    border: 1px solid #d0d0d0;
+    border-radius: 5px;
+    font-size: 14px;
+    width: 300px;
+    max-width: 100%;
+}
+.search-inline:focus { outline: none; border-color: #e91e8c; }
+
+.results-meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+#resultsCount {
+    font-size: 14px;
+    color: #666;
+    font-weight: 500;
+}
+
+.btn-reset {
+    background: transparent;
+    border: 1px solid #ccc;
+    color: #666;
+    font-size: 13px;
+    padding: 6px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.btn-reset:hover { border-color: #e91e8c; color: #e91e8c; }
+
+
+/* ---- NAME LIST (Row Style - like FirstCry) ---- */
+.names-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.name-row {
+    display: flex;
+    align-items: center;
+    padding: 14px 10px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.15s;
+    gap: 16px;
+}
+
+.name-row:hover { background: #fff8fc; }
+.name-row:last-child { border-bottom: none; }
+
+/* Gender icon bubble */
+.name-gender-bubble {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+    font-weight: 700;
+}
+
+.bubble-girl { background: #fce4ec; color: #e91e8c; }
+.bubble-boy  { background: #e3f2fd; color: #2196f3; }
+.bubble-unisex { background: #f3e5f5; color: #9c27b0; }
+
+/* Name Info */
+.name-info { flex: 1; min-width: 0; }
+
+.name-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #222;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.name-meaning {
+    font-size: 13px;
+    color: #666;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+/* Tags on the right */
+.name-tags {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.name-tag {
+    font-size: 11px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-weight: 600;
+    background: #f0f0f0;
+    color: #555;
+    white-space: nowrap;
+}
+
+/* Heart / Like Icon */
+.name-like-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: #ccc;
+    flex-shrink: 0;
+    padding: 4px 6px;
+    border-radius: 50%;
+    transition: all 0.2s;
+    line-height: 1;
+}
+.name-like-btn:hover { color: #e91e8c; background: #fce4ec; }
+.name-like-btn.liked { color: #e91e8c; }
+
+
+/* ---- POPULAR SECTION ---- */
+.popular-section {
+    background: #fff;
+    border-radius: 8px;
+    padding: 28px;
+    margin-bottom: 30px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.popular-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 20px;
+}
+
+.popular-box {
+    background: #fafafa;
+    border-radius: 8px;
+    padding: 20px;
+    border: 1px solid #eee;
+}
+
+.popular-box h3 {
+    font-size: 1rem;
+    margin-bottom: 14px;
+    color: #333;
+}
+
+.popular-box ul {
+    list-style: none;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 16px;
+}
+
+.popular-box li a {
+    font-size: 14px;
+    color: #444;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.popular-box li a:hover { color: #e91e8c; }
+
+/* ---- NO RESULTS ---- */
+.no-results {
+    text-align: center;
+    padding: 60px 20px;
+    color: #999;
+}
+.no-results-icon { font-size: 3rem; margin-bottom: 12px; }
+.no-results h3 { font-size: 1.3rem; color: #555; margin-bottom: 8px; }
+.no-results p { margin-bottom: 20px; font-size: 14px; }
+
+.hidden { display: none !important; }
+
+/* ---- FOOTER ---- */
+.footer {
+    background: #222;
+    color: #aaa;
+    text-align: center;
+    padding: 30px 20px;
+    font-size: 13px;
+}
+.footer-inner { max-width: 800px; margin: 0 auto; }
+.footer strong { color: #f48da7; }
+.footer-links { margin: 10px 0; }
+.footer-links a { color: #aaa; margin: 0 6px; }
+.footer-links a:hover { color: #fff; }
+.footer-copy { color: #666; margin-top: 10px; }
+
+/* ---- RESPONSIVE ---- */
+@media (max-width: 768px) {
+    .filter-bar { gap: 10px; }
+    .filter-select-group select { min-width: 130px; }
+    .popular-grid { grid-template-columns: 1fr; }
+    .name-tags { display: none; }
+    .results-toolbar { flex-direction: column; align-items: stretch; }
+    .search-inline { width: 100%; }
+    .results-meta { justify-content: space-between; }
+}
+
+@media (max-width: 480px) {
+    .hero-section { padding: 20px 16px; }
+    .browse-section, .results-section, .popular-section { padding: 20px 16px; }
+    .filter-bar { flex-direction: column; align-items: stretch; }
+    .filter-select-group select, .btn-find { width: 100%; }
+    .gender-icons-row { gap: 10px; }
+    .gender-icon-btn { min-width: 70px; padding: 10px 14px; }
+}

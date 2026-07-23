@@ -55,8 +55,8 @@ function applyFilters(all: BabyName[], f: Filters): BabyName[] {
   if (f.gender.length) result = result.filter((n) => f.gender.includes(n.gender));
   if (f.length === "short") result = result.filter((n) => n.syllables <= 2);
   else if (f.length === "medium") result = result.filter((n) => n.syllables === 3);
-  if (f.region.length) result = result.filter((n) => f.region.includes(n.region));
-  if (f.theme.length) result = result.filter((n) => f.theme.includes(n.theme));
+  if (f.region.length) result = result.filter((n) => Boolean(n.region && f.region.includes(n.region as string)));
+  if (f.theme.length) result = result.filter((n) => Boolean(n.theme && f.theme.includes(n.theme as string)));
   if (f.rashi) result = result.filter((n) => n.rashi === f.rashi);
   if (f.popularity.length) result = result.filter((n) => f.popularity.includes(n.popularity));
   if (f.nakshatra) result = result.filter((n) => n.nakshatra === f.nakshatra);
@@ -107,6 +107,10 @@ export default function SearchPage() {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [decideMode, setDecideMode] = useState(false);
+  const [decideIndex, setDecideIndex] = useState(0);
+  const [dismissed, setDismissed] = useState<string[]>([]);
+  const [searchFocused, setSearchFocused] = useState(false);
 
   // Sync profile & URL
   useEffect(() => {
@@ -135,9 +139,9 @@ export default function SearchPage() {
   const removeFilter = (key: keyof Filters, val: string | null = null) => {
     const next = { ...filters };
     if (val !== null && Array.isArray(next[key])) {
-      next[key] = (next[key] as string[]).filter(x => x !== val) as Extract<Filters[keyof Filters], string[]>;
+      next[key] = (next[key] as string[]).filter(x => x !== val) as never;
     } else {
-      next[key] = DEFAULT_FILTERS[key] as Extract<Filters[keyof Filters], string>;
+      next[key] = DEFAULT_FILTERS[key] as never;
     }
     setFilters(next);
     updateParamURL(next);
@@ -149,6 +153,7 @@ export default function SearchPage() {
   };
 
   const results = useMemo(() => applyFilters(names, filters), [filters]);
+  const decideList = useMemo(() => results.filter(n => !dismissed.includes(n.slug)), [results, dismissed]);
 
   // Derived Header logic
   let headerText = "Explore all 2,000+ Hindu baby names";
@@ -164,25 +169,55 @@ export default function SearchPage() {
   const suggestionsMeaning = queryWords ? names.filter(n => n.meaning.toLowerCase().includes(queryWords)).slice(0,2) : [];
   const suggestionsDeity = queryWords ? names.filter(n => n.deity?.toLowerCase().includes(queryWords)).slice(0,2) : [];
 
+  const currentDecideCard = decideList[decideIndex] ?? null;
+
+  function handleDecideDismiss(slug: string) {
+    setDismissed(prev => [...prev, slug]);
+    setDecideIndex(i => Math.min(i, decideList.length - 2));
+  }
+  function handleDecideNext() {
+    if (decideIndex < decideList.length - 1) setDecideIndex(i => i + 1);
+  }
+  function handleDecidePrev() {
+    if (decideIndex > 0) setDecideIndex(i => i - 1);
+  }
+
   return (
     <div style={s.pageWrapper}>
       
-      {/* ── ZONE 1: Contextual Header ────────────────────────────────────── */}
+      {/* ── ZONE 1: Contextual Header + Mode Toggle ───────────────────────── */}
       <div style={s.zone1Header}>
-        <h1 style={s.zone1Text}>{headerText}</h1>
+        <h1 style={s.zone1Text}>{decideMode ? `Decide Mode — ${decideIndex + 1} of ${decideList.length}` : headerText}</h1>
+        <button
+          onClick={() => { setDecideMode(m => !m); setDecideIndex(0); }}
+          style={s.modeToggleBtn}
+          aria-pressed={decideMode}
+        >
+          {decideMode ? "← Browse Mode" : "⚡ Decide Mode"}
+        </button>
       </div>
 
       {/* ── ZONE 2: Smart Filter Bar (Sticky) ─────────────────────────────── */}
       <div style={s.zone2StickyBar}>
         <div style={s.searchContainer}>
           <input
-            style={s.searchInput}
+            className="search-input-focus"
+            style={{
+              ...s.searchInput,
+              borderColor: searchFocused ? "#C8601A" : "#2E3A5C",
+              boxShadow: searchFocused
+                ? "0 0 0 3px rgba(200,96,26,0.12), 0 4px 12px rgba(46,58,92,0.05)"
+                : "0 4px 12px rgba(46, 58, 92, 0.05)",
+              transition: "border-color 0.18s ease, box-shadow 0.18s ease",
+            }}
             type="text"
             placeholder="Search by name, meaning, deity..."
             value={filters.q}
             onChange={(e) => updateFilter("q", e.target.value)}
-            onFocus={() => setShowDropdown(true)}
-            onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
+            onFocus={() => { setShowDropdown(true); setSearchFocused(true); }}
+            onBlur={() => { setSearchFocused(false); setTimeout(() => setShowDropdown(false), 200); }}
+            aria-label="Search names"
+            id="name-search-input"
           />
           {/* Autocomplete Dropdown */}
           {showDropdown && filters.q.trim() && (
@@ -211,8 +246,8 @@ export default function SearchPage() {
           )}
         </div>
 
-        {/* Filter Pills */}
-        <div style={s.filterRowDesktop}>
+        {/* Filter Pills — horizontal scroll on mobile */}
+        <div style={s.filterRowDesktop} className="search-filter-row pill-scroll-row">
           <select style={s.pillSelect} value={filters.gender[0] || ""} onChange={e => {
             const v = e.target.value; updateFilter("gender", v ? [v] : []);
           }}>
@@ -247,7 +282,7 @@ export default function SearchPage() {
           </select>
 
           <button style={s.mobileMoreFiltersBtn} onClick={() => setMobileSheetOpen(true)}>
-            + More Filters
+            + More
           </button>
         </div>
 
@@ -277,40 +312,86 @@ export default function SearchPage() {
 
       {/* ── ZONE 3: Results Area ──────────────────────────────────────────── */}
       <div style={s.zone3ResultsWrap}>
-        <div style={s.resultsMetaBar}>
-          <span style={s.resultsCount}>Showing {results.length} names</span>
-          <select style={s.sortSelect} value={filters.sort} onChange={e => updateFilter("sort", e.target.value as Filters["sort"])}>
-            <option value="popular">Most Popular</option>
-            <option value="az">A - Z</option>
-            <option value="za">Z - A</option>
-          </select>
-        </div>
 
-        {results.length === 0 ? (
-          <div style={s.emptyState}>
-            <div style={s.lotusSvg}>🪷</div>
-            <h3 style={s.emptyTitle}>No names match these filters</h3>
-            <p style={s.emptySubtitle}>Try one of these popular combinations:</p>
-            <div style={s.emptyOptions}>
-               <button onClick={() => { clearAll(); updateFilter("gender", ["boy"]); updateFilter("popularity", ["trending"]); }} style={s.emptyPromptPill}>Trending Boys</button>
-               <button onClick={() => { clearAll(); updateFilter("theme", ["mythological"]); }} style={s.emptyPromptPill}>Mythological Names</button>
-               <button onClick={() => { clearAll(); updateFilter("popularity", ["rare"]); updateFilter("gender", ["girl"]); }} style={s.emptyPromptPill}>Rare Girl Gems</button>
-            </div>
+        {/* ── DECIDE MODE (one card at a time) ─────────────────────────── */}
+        {decideMode ? (
+          <div style={s.decideModeWrap} className="decide-mode-card-wrap">
+            {currentDecideCard ? (
+              <>
+                <div className="decide-card" key={currentDecideCard.slug}>
+                  <NameCard
+                    name={currentDecideCard}
+                    onDismiss={handleDecideDismiss}
+                  />
+                </div>
+                <div style={s.decideNavRow}>
+                  <button
+                    onClick={handleDecidePrev}
+                    disabled={decideIndex === 0}
+                    style={{ ...s.decideNavBtn, opacity: decideIndex === 0 ? 0.35 : 1 }}
+                  >
+                    ← Prev
+                  </button>
+                  <span style={s.decideCounter}>
+                    {decideIndex + 1} / {decideList.length}
+                  </span>
+                  <button
+                    onClick={handleDecideNext}
+                    disabled={decideIndex >= decideList.length - 1}
+                    style={{ ...s.decideNavBtn, opacity: decideIndex >= decideList.length - 1 ? 0.35 : 1 }}
+                  >
+                    Next →
+                  </button>
+                </div>
+                <p style={s.decideTip}>💡 Swipe right to save, swipe left to skip</p>
+              </>
+            ) : (
+              <div style={s.emptyState}>
+                <div style={s.lotusSvg}>✅</div>
+                <h3 style={s.emptyTitle}>You&apos;ve reviewed all names!</h3>
+                <p style={s.emptySubtitle}>Check your Name Board to see your saved names.</p>
+                <button onClick={() => { setDecideMode(false); setDismissed([]); setDecideIndex(0); }} style={s.emptyPromptPill}>Start over</button>
+              </div>
+            )}
           </div>
         ) : (
-          <div style={s.grid}>
-            {results.map((name, idx) => (
-              <div style={{ display: 'contents' }} key={name.id}>
-                <NameCard name={name} compact={true} />
-                {/* Break every 12 items (idx count 11, 23, 35...) */}
-                {(idx + 1) % 12 === 0 && (
-                  <div style={s.editorialBreak}>
-                    <p style={s.editorialCopy}>{EDITORIAL_INSERTS[Math.floor(idx / 12) % EDITORIAL_INSERTS.length]}</p>
-                  </div>
-                )}
+          <>
+            <div style={s.resultsMetaBar}>
+              <span style={s.resultsCount}>Showing {results.length} names</span>
+              <select style={s.sortSelect} value={filters.sort} onChange={e => updateFilter("sort", e.target.value as Filters["sort"])}>
+                <option value="popular">Most Popular</option>
+                <option value="az">A - Z</option>
+                <option value="za">Z - A</option>
+              </select>
+            </div>
+
+            {results.length === 0 ? (
+              <div style={s.emptyState}>
+                <div style={s.lotusSvg}>🪷</div>
+                <h3 style={s.emptyTitle}>No names match these filters</h3>
+                <p style={s.emptySubtitle}>Try one of these popular combinations:</p>
+                <div style={s.emptyOptions}>
+                   <button onClick={() => { clearAll(); updateFilter("gender", ["boy"]); updateFilter("popularity", ["trending"]); }} style={s.emptyPromptPill}>Trending Boys</button>
+                   <button onClick={() => { clearAll(); updateFilter("theme", ["mythological"]); }} style={s.emptyPromptPill}>Mythological Names</button>
+                   <button onClick={() => { clearAll(); updateFilter("popularity", ["rare"]); updateFilter("gender", ["girl"]); }} style={s.emptyPromptPill}>Rare Girl Gems</button>
+                </div>
               </div>
-            ))}
-          </div>
+            ) : (
+              <div style={s.grid} className="search-name-grid">
+                {results.map((name, idx) => (
+                  <div style={{ display: 'contents' }} key={name.id}>
+                    <NameCard name={name} compact={true} />
+                    {/* Break every 12 items */}
+                    {(idx + 1) % 12 === 0 && (
+                      <div style={s.editorialBreak}>
+                        <p style={s.editorialCopy}>{EDITORIAL_INSERTS[Math.floor(idx / 12) % EDITORIAL_INSERTS.length]}</p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
 
@@ -318,9 +399,10 @@ export default function SearchPage() {
       {mobileSheetOpen && (
         <div style={s.bottomSheetOverlay} onClick={() => setMobileSheetOpen(false)}>
           <div style={s.bottomSheetModal} onClick={e => e.stopPropagation()}>
+             <div style={{ width: "36px", height: "4px", backgroundColor: "#E8ECF5", borderRadius: "2px", margin: "0 auto 16px" }} />
              <div style={s.sheetHeader}>
-               <h3>More Filters</h3>
-               <button onClick={() => setMobileSheetOpen(false)} style={s.closeBtn}>✕</button>
+               <h3 style={{ fontFamily: "var(--font-display), serif", fontSize: "20px", color: "#2E3A5C", margin: 0 }}>More Filters</h3>
+               <button onClick={() => setMobileSheetOpen(false)} style={s.closeBtn} aria-label="Close filters">✕</button>
              </div>
              
              <div style={s.sheetBody}>
@@ -336,7 +418,25 @@ export default function SearchPage() {
                    <option value="short">Short (1-2 syllables)</option>
                    <option value="medium">Medium (3 syllables)</option>
                 </select>
+
+                <label style={s.sheetLabel}>Region</label>
+                <select style={s.sheetSelect} value={filters.region[0] || ""} onChange={e => updateFilter("region", e.target.value ? [e.target.value] : [])}>
+                   <option value="">All Regions</option>
+                   <option value="north">North India</option>
+                   <option value="south">South India</option>
+                   <option value="west">West India</option>
+                   <option value="east">East India</option>
+                   <option value="pan-india">Pan India</option>
+                </select>
              </div>
+
+             {/* Apply button pinned at bottom */}
+             <button
+               onClick={() => setMobileSheetOpen(false)}
+               style={s.applyBtn}
+             >
+               Apply Filters
+             </button>
           </div>
         </div>
       )}
@@ -357,11 +457,13 @@ const s: Record<string, React.CSSProperties> = {
   },
   zone1Header: {
     backgroundColor: "#FDF4EE",
-    padding: "24px 32px",
+    padding: "20px 24px",
     display: "flex",
-    justifyContent: "center",
+    justifyContent: "space-between",
     alignItems: "center",
     borderBottom: "1px solid #F0E6DD",
+    flexWrap: "wrap" as const,
+    gap: "12px",
   },
   zone1Text: {
     fontFamily: "var(--font-display), 'Cormorant Garamond', serif",
@@ -590,5 +692,62 @@ const s: Record<string, React.CSSProperties> = {
   },
   sheetSelect: {
     padding: "12px", borderRadius: "8px", border: "1px solid #E8ECF5", width: "100%",
-  }
+    fontSize: "15px", fontFamily: "var(--font-body), sans-serif",
+  },
+  applyBtn: {
+    width: "100%", padding: "16px", backgroundColor: "#C8601A", color: "#fff",
+    border: "none", borderRadius: "12px", fontFamily: "var(--font-body), sans-serif",
+    fontSize: "15px", fontWeight: 600, cursor: "pointer", marginTop: "24px",
+  },
+  modeToggleBtn: {
+    fontFamily: "var(--font-body), sans-serif",
+    fontSize: "13px",
+    fontWeight: 600,
+    color: "#C8601A",
+    backgroundColor: "transparent",
+    border: "1.5px solid #C8601A",
+    borderRadius: "20px",
+    padding: "8px 16px",
+    cursor: "pointer",
+    whiteSpace: "nowrap" as const,
+    minHeight: "44px",
+  },
+  // Decide Mode
+  decideModeWrap: {
+    maxWidth: "480px",
+    margin: "0 auto",
+    padding: "8px 0",
+  },
+  decideNavRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: "20px",
+    padding: "0 4px",
+  },
+  decideNavBtn: {
+    fontFamily: "var(--font-body), sans-serif",
+    fontSize: "14px",
+    fontWeight: 600,
+    color: "#2E3A5C",
+    backgroundColor: "#fff",
+    border: "1.5px solid #E8ECF5",
+    borderRadius: "10px",
+    padding: "10px 20px",
+    cursor: "pointer",
+    minHeight: "44px",
+    transition: "opacity 0.2s",
+  },
+  decideCounter: {
+    fontFamily: "var(--font-body), sans-serif",
+    fontSize: "13px",
+    color: "#9898A8",
+  },
+  decideTip: {
+    fontFamily: "var(--font-body), sans-serif",
+    fontSize: "12px",
+    color: "#9898A8",
+    textAlign: "center" as const,
+    marginTop: "12px",
+  },
 };

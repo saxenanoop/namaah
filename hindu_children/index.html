@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BabyNamer - 10,000+ Baby Boy & Girl Names with Meanings</title>
+    <meta name="description" content="Search 10,000+ baby names by gender, religion, origin and rashi. Find the perfect name for your newborn with meanings.">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="top-bar-inner">
+            <span class="site-name">👶 BabyNamer</span>
+            <span class="top-bar-tagline">India's Favourite Baby Names Directory</span>
+        </div>
+    </div>
+
+    <!-- Main Wrapper -->
+    <div class="page-wrapper">
+
+        <!-- Hero / Search Section -->
+        <section class="hero-section">
+            <h1>Baby Names & Meanings</h1>
+            <p class="hero-desc">Search from thousands of beautiful baby names. Filter by gender, religion, origin or rashi to find the perfect name for your little one.</p>
+
+            <!-- 4-Drop Filter Row -->
+            <div class="filter-bar">
+                <div class="filter-select-group">
+                    <label>Gender</label>
+                    <select id="filterGender">
+                        <option value="All">All Genders</option>
+                        <option value="Boy">Boy</option>
+                        <option value="Girl">Girl</option>
+                        <option value="Unisex">Unisex</option>
+                    </select>
+                </div>
+                <div class="filter-select-group">
+                    <label>Religion</label>
+                    <select id="filterReligion">
+                        <option value="All">All Religions</option>
+                        <option value="Hindu">Hindu</option>
+                        <option value="Muslim">Muslim</option>
+                        <option value="Christian">Christian</option>
+                        <option value="Sikh">Sikh</option>
+                    </select>
+                </div>
+                <div class="filter-select-group">
+                    <label>Origin</label>
+                    <select id="filterOrigin">
+                        <option value="All">All Origins</option>
+                        <option value="Sanskrit">Sanskrit</option>
+                        <option value="Arabic">Arabic</option>
+                        <option value="Hebrew">Hebrew</option>
+                        <option value="Punjabi">Punjabi</option>
+                        <option value="Latin">Latin</option>
+                        <option value="Greek">Greek</option>
+                        <option value="Persian">Persian</option>
+                    </select>
+                </div>
+                <div class="filter-select-group">
+                    <label>Rashi</label>
+                    <select id="filterRashi">
+                        <option value="All">All Rashis</option>
+                        <option value="Mesh">Mesh (Aries)</option>
+                        <option value="Vrishabh">Vrishabh (Taurus)</option>
+                        <option value="Mithun">Mithun (Gemini)</option>
+                        <option value="Kark">Kark (Cancer)</option>
+                        <option value="Simha">Simha (Leo)</option>
+                        <option value="Kanya">Kanya (Virgo)</option>
+                        <option value="Tula">Tula (Libra)</option>
+                        <option value="Vrishchik">Vrishchik (Scorpio)</option>
+                        <option value="Dhanu">Dhanu (Sagittarius)</option>
+                        <option value="Makar">Makar (Capricorn)</option>
+                        <option value="Kumbh">Kumbh (Aquarius)</option>
+                        <option value="Meen">Meen (Pisces)</option>
+                    </select>
+                </div>
+                <button id="findNamesBtn" class="btn-find">FIND NAMES</button>
+            </div>
+        </section>
+
+        <!-- A-Z & Gender Section -->
+        <section class="browse-section">
+            <h2 class="section-heading">Baby Names Starting With Alphabet</h2>
+
+            <!-- Gender Icon Picks -->
+            <div class="gender-icons-row">
+                <button class="gender-icon-btn active" data-gender="All">
+                    <span class="gender-icon girl-icon">♀</span>
+                    <span class="gender-icon boy-icon">♂</span>
+                    <span class="gender-label">ALL</span>
+                </button>
+                <button class="gender-icon-btn" data-gender="Girl">
+                    <span class="gender-icon girl-icon">♀</span>
+                    <span class="gender-label">GIRL</span>
+                </button>
+                <button class="gender-icon-btn" data-gender="Boy">
+                    <span class="gender-icon boy-icon">♂</span>
+                    <span class="gender-label">BOY</span>
+                </button>
+                <button class="gender-icon-btn" data-gender="Unisex">
+                    <span class="gender-icon unisex-icon">⚥</span>
+                    <span class="gender-label">UNISEX</span>
+                </button>
+            </div>
+
+            <!-- A-Z Alphabet Buttons -->
+            <div class="alphabet-row" id="alphabetRow">
+                <!-- Injected by JS -->
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section class="results-section">
+            <div class="results-toolbar">
+                <div class="results-info">
+                    <input type="text" id="searchInput" class="search-inline" placeholder="🔍 Search by name or meaning...">
+                </div>
+                <div class="results-meta">
+                    <span id="resultsCount">Loading...</span>
+                    <button id="clearFiltersBtn" class="btn-reset">✕ Clear All</button>
+                </div>
+            </div>
+
+            <!-- Name List -->
+            <div id="namesList" class="names-list">
+                <!-- Injected by JS -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="noResults" class="no-results hidden">
+                <div class="no-results-icon">🔍</div>
+                <h3>No names found</h3>
+                <p>Try a different search or reset your filters.</p>
+                <button onclick="document.getElementById('clearFiltersBtn').click()" class="btn-find">Reset All Filters</button>
+            </div>
+        </section>
+
+        <!-- Popular Names Boxes -->
+        <section class="popular-section">
+            <h2 class="section-heading">Most Popular Baby Names of 2026</h2>
+            <div class="popular-grid">
+                <div class="popular-box">
+                    <h3>🩷 Popular Girl Names</h3>
+                    <ul id="popularGirls"></ul>
+                </div>
+                <div class="popular-box">
+                    <h3>💙 Popular Boy Names</h3>
+                    <ul id="popularBoys"></ul>
+                </div>
+            </div>
+        </section>
+
+    </div><!-- end page-wrapper -->
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <p><strong>👶 BabyNamer</strong> &mdash; India's trusted baby name resource.</p>
+            <p class="footer-links">
+                <a href="#">About Us</a> &middot; <a href="#">Privacy Policy</a> &middot; <a href="#">Contact</a>
+            </p>
+            <p class="footer-copy">&copy; 2026 BabyNamer. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="data_hindu.js"></script>
+    <script src="data_muslim.js"></script>
+    <script src="data_others.js"></script>
+    <script src="data_scraped_hindu.js"></script>
+    <script src="data_scraped_muslim.js"></script>
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

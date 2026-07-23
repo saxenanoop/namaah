@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { names } from "@/data/names";
 import type { BabyName } from "@/data/names";
@@ -28,6 +28,14 @@ export default function NakshatraClient() {
   const [nakshatra, setNakshatra] = useState<Nakshatra | null>(null);
   const [activeSyllable, setActiveSyllable] = useState<string | null>(null);
   const [dateError, setDateError] = useState<string | null>(null);
+  // revealKey forces animation to replay on each new result
+  const [revealKey, setRevealKey] = useState(0);
+
+  // Mark visit in sessionStorage so homepage personalisation knows the user
+  // has tried the Nakshatra finder (suppresses the nudge variant).
+  useEffect(() => {
+    try { sessionStorage.setItem("namaah-nakshatra-visited", "1"); } catch {}
+  }, []);
 
   // Filtered names from the Nakshatra + optional syllable filter
   const matchedNames = useMemo<BabyName[]>(() => {
@@ -76,6 +84,7 @@ export default function NakshatraClient() {
       const result = getNakshatraObjectFromDate(day, month);
       setNakshatra(result ?? null);
       setPhase("results");
+      setRevealKey((k) => k + 1); // restart animations
 
       // Scroll to results
       setTimeout(() => {
@@ -189,7 +198,9 @@ export default function NakshatraClient() {
               {/* a) Nakshatra revealed card */}
               <div style={s.revealCard}>
                 <p style={s.smallLabel}>Nakshatra detected</p>
-                <h2 style={s.nakshatraName}>{nakshatra.name}</h2>
+                <h2 style={s.nakshatraName} key={revealKey}>
+                  <LetterReveal text={nakshatra.name} baseDelay={0} />
+                </h2>
                 <p style={s.nakshatraHindi}>{nakshatra.nameHindi}</p>
 
                 <div style={s.pillRow}>
@@ -212,7 +223,7 @@ export default function NakshatraClient() {
                   Auspicious starting syllables for {nakshatra.name}
                 </p>
                 <div style={s.syllableRow}>
-                  {nakshatra.syllables.map((syl) => (
+                  {nakshatra.syllables.map((syl, idx) => (
                     <button
                       key={syl}
                       onClick={() =>
@@ -224,6 +235,7 @@ export default function NakshatraClient() {
                           activeSyllable === syl ? "#C8601A" : "rgba(255,255,255,0.12)",
                         borderColor:
                           activeSyllable === syl ? "#C8601A" : "rgba(255,255,255,0.2)",
+                        animation: `syl-pill-pop 0.35s cubic-bezier(0.34,1.56,0.64,1) ${revealKey > 0 ? idx * 60 + 200 : 0}ms both`,
                       }}
                       aria-pressed={activeSyllable === syl}
                     >
@@ -252,8 +264,15 @@ export default function NakshatraClient() {
 
                 {displayNames.length > 0 ? (
                   <div style={s.nameGrid} className="nakshatra-name-grid">
-                    {displayNames.map((n) => (
-                      <DarkNameCard key={n.id} name={n} />
+                    {displayNames.map((n, i) => (
+                      <div
+                        key={`${revealKey}-${n.id}`}
+                        style={{
+                          animation: `card-stagger-in 0.4s ease ${i * 50}ms both`,
+                        }}
+                      >
+                        <DarkNameCard name={n} />
+                      </div>
                     ))}
                   </div>
                 ) : (
@@ -287,6 +306,28 @@ export default function NakshatraClient() {
         </p>
       </footer>
     </div>
+  );
+}
+
+// ─── LetterReveal ─────────────────────────────────────────────────────────────
+
+function LetterReveal({ text, baseDelay = 0 }: { text: string; baseDelay?: number }) {
+  return (
+    <>
+      {text.split("").map((char, i) => (
+        <span
+          key={i}
+          aria-hidden={char === " "}
+          style={{
+            display: "inline-block",
+            opacity: 0,
+            animation: `letter-reveal 0.3s ease ${baseDelay + i * 40}ms both`,
+          }}
+        >
+          {char === " " ? "\u00A0" : char}
+        </span>
+      ))}
+    </>
   );
 }
 

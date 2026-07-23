@@ -1,15 +1,39 @@
-/* Skeleton animation — used by all loading.tsx files */
-@keyframes skeleton-pulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.45; }
-}
+/* ─────────────────────────────────────────────────────────────────────────────
+   Skeleton screens — shimmer (left-to-right gradient sweep)
+   ───────────────────────────────────────────────────────────────────────────── */
+
 .skeleton {
-  background-color: #E8ECF5;
+  background: linear-gradient(
+    90deg,
+    #E8ECF5 25%,
+    #F0F3FA 50%,
+    #E8ECF5 75%
+  );
+  background-size: 800px 100%;
   border-radius: 6px;
-  animation: skeleton-pulse 1.6s ease-in-out infinite;
+  animation: shimmer 1.5s ease-in-out infinite;
 }
+
+/* Dark variant — for Nakshatra page dark background */
 .skeleton-dark {
-  background-color: rgba(255, 255, 255, 0.1);
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.08) 25%,
+    rgba(255,255,255,0.14) 50%,
+    rgba(255,255,255,0.08) 75%
+  );
+  background-size: 800px 100%;
   border-radius: 6px;
-  animation: skeleton-pulse 1.6s ease-in-out infinite;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton,
+  .skeleton-dark {
+    animation: none;
+    background: #E8ECF5;
+  }
+  .skeleton-dark {
+    background: rgba(255,255,255,0.1);
+  }
 }

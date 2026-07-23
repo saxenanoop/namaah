@@ -10,20 +10,37 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        saffron: "#C8601A",
-        "saffron-light": "#FDF4EE",
-        indigo: "#2E3A5C",
-        "indigo-mid": "#4A5A82",
-        "indigo-light": "#E8ECF5",
-        gold: "#B8860B",
-        "gold-light": "#FFF8E7",
-        ivory: "#FDFCFA",
-        "text-dark": "#1A1A2E",
-        "text-muted": "#6B6B80",
+        cream: "#FFF8F0",
+        saffron: {
+          DEFAULT: "#FF9933",
+          dark: "#E67E22",
+          deep: "#D35400",
+          light: "#FFF3E0",
+        },
+        teal: {
+          DEFAULT: "#138D75",
+          dark: "#117A65",
+          light: "#E8F8F5",
+        },
+        charcoal: {
+          DEFAULT: "#2C3E50",
+          muted: "#5D6D7E",
+          light: "#85929E",
+        },
       },
       fontFamily: {
-        body: ["var(--font-body)", "sans-serif"],
-        display: ["var(--font-display)", "serif"],
+        heading: ["var(--font-heading)", "Playfair Display", "serif"],
+        body: ["var(--font-body)", "Inter", "sans-serif"],
+        devanagari: ["var(--font-devanagari)", "Noto Sans Devanagari", "sans-serif"],
+      },
+      boxShadow: {
+        soft: "0 4px 20px -2px rgba(44, 62, 80, 0.06)",
+        card: "0 6px 24px -4px rgba(44, 62, 80, 0.08)",
+        hover: "0 12px 32px -4px rgba(255, 153, 51, 0.15)",
+        drawer: "-8px 0 32px rgba(44, 62, 80, 0.15)",
+      },
+      borderRadius: {
+        card: "12px",
       },
     },
   },
@@ -31,3 +48,4 @@ const config: Config = {
 };
 
 export default config;
+

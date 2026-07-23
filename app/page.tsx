@@ -1,300 +1,361 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import { names } from "@/data/names";
+import React, { useState, useEffect, useMemo } from "react";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import HeroSection from "@/components/home/HeroSection";
+import CategoryGrid from "@/components/home/CategoryGrid";
+import AZSidebar from "@/components/names/AZSidebar";
 import NameCard from "@/components/names/NameCard";
-import AdBanner from "@/components/ui/AdBanner";
-import PersonalizationFlow, { UserProfile } from "@/components/home/PersonalizationFlow";
-import WelcomeBoard from "@/components/home/WelcomeBoard";
+import NameDetailModal from "@/components/names/NameDetailModal";
+import CorrectionModal from "@/components/names/CorrectionModal";
+import ShortlistDrawer from "@/components/shortlist/ShortlistDrawer";
+import { ToastProvider, useToast } from "@/components/ui/Toast";
+import { names, BabyName } from "@/data/names";
 
-// Removed FILTER_PILLS
+const SHORTLIST_KEY = "namaah-shortlist-ids";
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Page
-// ─────────────────────────────────────────────────────────────────────────────
+function MainContent() {
+  // Filtering & Sorting States
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedGender, setSelectedGender] = useState<"all" | "boy" | "girl" | "unisex">("all");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedLetter, setSelectedLetter] = useState("all");
+  const [sortBy, setSortBy] = useState<"popularity" | "a-z" | "z-a" | "meaning">("popularity");
 
-export default function HomePage() {
-  const [mounted, setMounted] = useState(false);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
+  // Shortlist State (stored as array of name IDs in LocalStorage)
+  const [shortlistIds, setShortlistIds] = useState<string[]>([]);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
+  // Modals
+  const [activeDetailName, setActiveDetailName] = useState<BabyName | null>(null);
+  const [activeCorrectionName, setActiveCorrectionName] = useState<BabyName | null>(null);
+
+  const { showToast } = useToast();
+
+  // Load shortlist from LocalStorage on mount
   useEffect(() => {
-    setMounted(true);
     try {
-      const saved = localStorage.getItem("namaah-profile");
-      if (saved) {
-        setProfile(JSON.parse(saved));
+      const stored = localStorage.getItem(SHORTLIST_KEY);
+      if (stored) {
+        setShortlistIds(JSON.parse(stored));
       }
-    } catch {}
+    } catch {
+      // LocalStorage fallback
+    }
   }, []);
 
+  // Save shortlist to LocalStorage whenever it changes
+  const saveShortlist = (ids: string[]) => {
+    setShortlistIds(ids);
+    try {
+      localStorage.setItem(SHORTLIST_KEY, JSON.stringify(ids));
+    } catch {}
+  };
+
+  // Toggle Shortlist item
+  const handleToggleShortlist = (name: BabyName) => {
+    const exists = shortlistIds.includes(name.id);
+    if (exists) {
+      const next = shortlistIds.filter((id) => id !== name.id);
+      saveShortlist(next);
+      showToast(`Removed "${name.name}" from shortlist`, "info");
+    } else {
+      const next = [...shortlistIds, name.id];
+      saveShortlist(next);
+      showToast(`Added "${name.name}" to shortlist ❤️`, "heart");
+    }
+  };
+
+  const handleClearShortlist = () => {
+    saveShortlist([]);
+    showToast("Cleared all items from shortlist", "info");
+  };
+
+  // Available letters in dataset for A-Z sidebar
+  const availableLetters = useMemo(() => {
+    const letters = new Set<string>();
+    names.forEach((n) => {
+      if (n.name) letters.add(n.name.charAt(0).toUpperCase());
+    });
+    return Array.from(letters).sort();
+  }, []);
+
+  // Filtered & Sorted Names
+  const filteredNames = useMemo(() => {
+    let result = [...names];
+
+    // 1. Search Query filter (name, Hindi name, meaning, or starting letter)
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      result = result.filter(
+        (n) =>
+          n.name.toLowerCase().includes(q) ||
+          n.nameHindi.includes(q) ||
+          n.meaning.toLowerCase().includes(q) ||
+          n.meaningFull.toLowerCase().includes(q) ||
+          n.origin.toLowerCase().includes(q) ||
+          n.name.toLowerCase().startsWith(q)
+      );
+    }
+
+    // 2. Gender Filter
+    if (selectedGender !== "all") {
+      result = result.filter((n) => n.gender === selectedGender || n.gender === "unisex");
+    }
+
+    // 3. Category Filter
+    if (selectedCategory !== "all") {
+      result = result.filter((n) => n.categories?.includes(selectedCategory));
+    }
+
+    // 4. Letter Filter
+    if (selectedLetter !== "all") {
+      result = result.filter((n) => n.name.toUpperCase().startsWith(selectedLetter));
+    }
+
+    // 5. Sorting
+    result.sort((a, b) => {
+      if (sortBy === "a-z") return a.name.localeCompare(b.name);
+      if (sortBy === "z-a") return b.name.localeCompare(a.name);
+      if (sortBy === "meaning") return a.meaning.length - b.meaning.length;
+      // Default: Popularity (Trending -> Classic -> Rare)
+      const popOrder = { trending: 1, classic: 2, rare: 3 };
+      return popOrder[a.popularity] - popOrder[b.popularity];
+    });
+
+    return result;
+  }, [searchQuery, selectedGender, selectedCategory, selectedLetter, sortBy]);
+
+  // Shortlisted BabyName objects
+  const shortlistedNames = useMemo(() => {
+    return names.filter((n) => shortlistIds.includes(n.id));
+  }, [shortlistIds]);
+
+  const handleClearAllFilters = () => {
+    setSearchQuery("");
+    setSelectedGender("all");
+    setSelectedCategory("all");
+    setSelectedLetter("all");
+  };
+
   return (
-    <main>
-      {!mounted ? (
-        <section style={{ height: "500px", backgroundColor: "#FDF4EE" }} />
-      ) : profile ? (
-        <WelcomeBoard profile={profile} />
-      ) : (
-        <PersonalizationFlow onComplete={(p) => setProfile(p)} />
-      )}
-      <TrendingStrip />
-      {/* Ad unit — horizontal between trending and theme sections */}
-      <div style={{ padding: "20px 48px", backgroundColor: "#F8F9FA" }} className="ad-section">
-        <AdBanner slot="homepage-horizontal" format="horizontal" />
-      </div>
-      <BrowseByTheme />
-    </main>
-  );
-}
+    <div className="min-h-screen flex flex-col">
+      {/* Top Fixed Navbar */}
+      <Navbar
+        shortlistCount={shortlistIds.length}
+        onOpenShortlist={() => setIsDrawerOpen(true)}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        selectedGender={selectedGender}
+        onGenderChange={setSelectedGender}
+      />
 
-// Previously HeroSection (Removed as part of PersonalizationFlow implementation)
+      <main className="flex-1">
+        {/* Hero Section */}
+        <HeroSection
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          selectedGender={selectedGender}
+          onGenderChange={setSelectedGender}
+          selectedCategory={selectedCategory}
+          onCategorySelect={setSelectedCategory}
+        />
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Trending Strip — horizontal scroll of trending names
-// ─────────────────────────────────────────────────────────────────────────────
+        {/* Category Grid */}
+        <CategoryGrid
+          selectedCategory={selectedCategory}
+          onSelectCategory={setSelectedCategory}
+        />
 
-function TrendingStrip() {
-  const trending = names.filter((n) => n.popularity === "trending").slice(0, 8);
-  return (
-    <section style={secStyles.trendingSection} className="trending-section" aria-label="Trending names">
-      <div style={secStyles.sectionHeader} className="trending-section-header">
-        <div>
-          <h2 style={secStyles.sectionTitle}>Trending Right Now</h2>
-          <p style={secStyles.sectionSub}>Names Indian parents are loving in 2026</p>
-        </div>
-        <Link href="/trending" style={secStyles.seeAll}>See all trends →</Link>
-      </div>
-      <div style={secStyles.scrollTrack} className="trending-track">
-        {trending.map((n) => (
-          <div key={n.id} style={{ flexShrink: 0 }}>
-            <NameCard name={n} compact />
+        {/* Name Browsing Main Section */}
+        <section id="browse-section" className="py-12 max-w-[1200px] mx-auto px-4 sm:px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {/* Left Column: A-Z Sticky Alphabet Sidebar (Desktop) / Horizontal Pills (Mobile) */}
+            <div className="lg:col-span-3">
+              <AZSidebar
+                selectedLetter={selectedLetter}
+                onSelectLetter={setSelectedLetter}
+                availableLetters={availableLetters}
+              />
+            </div>
+
+            {/* Right Column: Name Grid, Sort Header & Results */}
+            <div className="lg:col-span-9 space-y-6">
+              {/* Header: Results Count & Sort Dropdown */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-white border border-saffron/15 shadow-soft">
+                <div>
+                  <h2 className="font-heading text-xl font-bold text-charcoal">
+                    Hindu Baby Names
+                  </h2>
+                  <p className="text-xs text-charcoal-muted font-medium mt-0.5">
+                    Showing <span className="text-saffron-deep font-bold">{filteredNames.length}</span> of{" "}
+                    {names.length} names
+                    {selectedCategory !== "all" && ` in ${selectedCategory}`}
+                    {selectedLetter !== "all" && ` starting with "${selectedLetter}"`}
+                  </p>
+                </div>
+
+                {/* Sort dropdown */}
+                <div className="flex items-center gap-2 self-end sm:self-auto">
+                  <label htmlFor="sort-by" className="text-xs font-semibold text-charcoal-muted">
+                    Sort by:
+                  </label>
+                  <select
+                    id="sort-by"
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as "popularity" | "a-z" | "z-a" | "meaning")}
+                    className="text-xs font-medium bg-saffron-light/60 border border-saffron/20 text-charcoal px-3 py-1.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-saffron"
+                  >
+                    <option value="popularity">Popularity (Trending first)</option>
+                    <option value="a-z">Alphabetical (A to Z)</option>
+                    <option value="z-a">Alphabetical (Z to A)</option>
+                    <option value="meaning">Concise Meaning</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Active Filter Chips Bar */}
+              {(selectedGender !== "all" ||
+                selectedCategory !== "all" ||
+                selectedLetter !== "all" ||
+                searchQuery !== "") && (
+                <div className="flex flex-wrap items-center gap-2 pt-1">
+                  <span className="text-xs font-bold text-charcoal-muted">Active Filters:</span>
+
+                  {searchQuery && (
+                    <span className="text-xs bg-saffron-light text-saffron-deep px-3 py-1 rounded-full border border-saffron/20 flex items-center gap-1.5 font-medium">
+                      Search: &quot;{searchQuery}&quot;
+                      <button onClick={() => setSearchQuery("")} className="hover:text-charcoal">
+                        ✕
+                      </button>
+                    </span>
+                  )}
+
+                  {selectedGender !== "all" && (
+                    <span className="text-xs bg-saffron-light text-saffron-deep px-3 py-1 rounded-full border border-saffron/20 flex items-center gap-1.5 font-medium capitalize">
+                      Gender: {selectedGender}
+                      <button onClick={() => setSelectedGender("all")} className="hover:text-charcoal">
+                        ✕
+                      </button>
+                    </span>
+                  )}
+
+                  {selectedCategory !== "all" && (
+                    <span className="text-xs bg-saffron-light text-saffron-deep px-3 py-1 rounded-full border border-saffron/20 flex items-center gap-1.5 font-medium">
+                      Theme: {selectedCategory}
+                      <button onClick={() => setSelectedCategory("all")} className="hover:text-charcoal">
+                        ✕
+                      </button>
+                    </span>
+                  )}
+
+                  {selectedLetter !== "all" && (
+                    <span className="text-xs bg-saffron-light text-saffron-deep px-3 py-1 rounded-full border border-saffron/20 flex items-center gap-1.5 font-medium">
+                      Letter: {selectedLetter}
+                      <button onClick={() => setSelectedLetter("all")} className="hover:text-charcoal">
+                        ✕
+                      </button>
+                    </span>
+                  )}
+
+                  <button
+                    onClick={handleClearAllFilters}
+                    className="text-xs text-charcoal-muted hover:text-saffron-deep font-semibold underline ml-2"
+                  >
+                    Clear All
+                  </button>
+                </div>
+              )}
+
+              {/* Name Grid (3 cols desktop, 2 tablet, 1 mobile) */}
+              {filteredNames.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {filteredNames.map((nameItem, idx) => (
+                    <div
+                      key={nameItem.id}
+                      className="animate-fade-in"
+                      style={{ animationDelay: `${Math.min(idx * 0.04, 0.4)}s` }}
+                    >
+                      <NameCard
+                        name={nameItem}
+                        isShortlisted={shortlistIds.includes(nameItem.id)}
+                        onToggleShortlist={handleToggleShortlist}
+                        onViewDetails={(item) => setActiveDetailName(item)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                /* Empty State */
+                <div className="p-12 text-center bg-white rounded-3xl border border-saffron/20 shadow-soft max-w-md mx-auto space-y-4 my-8">
+                  <div className="w-16 h-16 rounded-full bg-saffron-light flex items-center justify-center text-3xl mx-auto">
+                    🔍
+                  </div>
+                  <div>
+                    <h3 className="font-heading text-xl font-bold text-charcoal mb-1">
+                      No matching names found
+                    </h3>
+                    <p className="text-xs text-charcoal-muted leading-relaxed">
+                      We couldn&apos;t find any names matching your current filters. Try searching with a different term or clearing your filters.
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleClearAllFilters}
+                    className="px-6 py-2.5 rounded-full bg-saffron text-white text-xs font-semibold hover:bg-saffron-dark transition-all shadow-sm"
+                  >
+                    Clear All Filters
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
-        ))}
-      </div>
-      {/* Bottom divider */}
-      <div style={secStyles.stripDivider} />
-    </section>
+        </section>
+      </main>
+
+      {/* Detail Modal */}
+      {activeDetailName && (
+        <NameDetailModal
+          name={activeDetailName}
+          onClose={() => setActiveDetailName(null)}
+          isShortlisted={shortlistIds.includes(activeDetailName.id)}
+          onToggleShortlist={handleToggleShortlist}
+          onSelectSimilarName={(sim) => setActiveDetailName(sim)}
+          onOpenCorrection={(item) => {
+            setActiveDetailName(null);
+            setActiveCorrectionName(item);
+          }}
+        />
+      )}
+
+      {/* Correction Modal */}
+      {activeCorrectionName && (
+        <CorrectionModal
+          name={activeCorrectionName}
+          onClose={() => setActiveCorrectionName(null)}
+        />
+      )}
+
+      {/* Shortlist Drawer */}
+      <ShortlistDrawer
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        shortlist={shortlistedNames}
+        onRemove={handleToggleShortlist}
+        onClearAll={handleClearShortlist}
+        onViewDetails={(item) => setActiveDetailName(item)}
+      />
+
+      {/* Footer */}
+      <Footer />
+    </div>
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Browse by theme — grid of category cards
-// ─────────────────────────────────────────────────────────────────────────────
-
-const THEME_CARDS = [
-  {
-    id: "deity",
-    icon: "✦",
-    title: "Deity names",
-    sub: "Krishna, Shiva, Durga and their many forms",
-    href: "/search?theme=deity",
-  },
-  {
-    id: "nature",
-    icon: "◈",
-    title: "Nature & earth",
-    sub: "Mountains, rivers, dawn, sky, lotus",
-    href: "/search?theme=nature",
-  },
-  {
-    id: "virtue",
-    icon: "◉",
-    title: "Vedic virtues",
-    sub: "Wisdom, peace, courage, devotion",
-    href: "/search?theme=virtue",
-  },
-  {
-    id: "mythological",
-    icon: "◇",
-    title: "Mythological heroes",
-    sub: "Ramayana, Mahabharata characters",
-    href: "/search?theme=mythological",
-  },
-  {
-    id: "south",
-    icon: "◆",
-    title: "South Indian",
-    sub: "Tamil, Telugu, Kannada traditions",
-    href: "/search?region=south",
-  },
-  {
-    id: "short",
-    icon: "○",
-    title: "Short micro-names",
-    sub: "2–3 syllable global-friendly names",
-    href: "/search?syllables=short",
-  },
-  {
-    id: "celebrity",
-    icon: "★",
-    title: "Celebrity picks",
-    sub: "Bollywood and cricket star choices",
-    href: "/trending#celebrity",
-  },
-  {
-    id: "rare",
-    icon: "◍",
-    title: "Royal & rare",
-    sub: "Uncommon names with royal heritage",
-    href: "/search?popularity=rare",
-  },
-];
-
-function BrowseByTheme() {
+export default function HomePage() {
   return (
-    <section aria-label="Browse by theme">
-      {/* Header — has its own padding */}
-      <div style={secStyles.themeHeader} className="theme-header">
-        <h2 style={secStyles.sectionTitle}>Browse by theme</h2>
-      </div>
-      {/* Grid — separate padding */}
-      <div style={secStyles.themeGrid} className="theme-grid">
-        {THEME_CARDS.map((card) => (
-          <ThemeCard key={card.id} card={card} />
-        ))}
-      </div>
-    </section>
+    <ToastProvider>
+      <MainContent />
+    </ToastProvider>
   );
 }
-
-function ThemeCard({
-  card,
-}: {
-  card: (typeof THEME_CARDS)[number];
-}) {
-  const [hovered, setHovered] = useState(false);
-  return (
-    <Link
-      href={card.href}
-      style={{
-        ...secStyles.themeCard,
-        borderColor: hovered ? "#4A5A82" : "#E8ECF5",
-        boxShadow: hovered
-          ? "0 4px 16px rgba(74,90,130,0.10)"
-          : "0 1px 3px rgba(46,58,92,0.04)",
-      }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      <span style={secStyles.themeIcon}>{card.icon}</span>
-      <span style={secStyles.themeTitle}>{card.title}</span>
-      <span style={secStyles.themeSub}>{card.sub}</span>
-    </Link>
-  );
-}
-
-// Previously HeroSearchBar
-
-// Previously FilterPill, MandalaDecor, StarIcon
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Styles
-// ─────────────────────────────────────────────────────────────────────────────
-
-// Removed styles
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Section styles (separate object to keep hero styles clean)
-// ─────────────────────────────────────────────────────────────────────────────
-
-const secStyles: Record<string, React.CSSProperties> = {
-  // Shared section layout
-  sectionHeader: {
-    display:        "flex",
-    alignItems:     "flex-end",
-    justifyContent: "space-between",
-    marginBottom:   "24px",
-    flexWrap:       "wrap" as const,
-    gap:            "12px",
-  },
-  sectionTitle: {
-    fontFamily:  "var(--font-display), 'Cormorant Garamond', serif",
-    fontSize:    "24px",
-    fontWeight:  600,
-    color:       "#2E3A5C",
-    margin:      "0 0 4px",
-    lineHeight:  1.2,
-  },
-  sectionSub: {
-    fontFamily: "var(--font-body), 'DM Sans', sans-serif",
-    fontSize:   "13px",
-    color:      "#6B6B80",
-    margin:     0,
-    fontWeight: 300,
-  },
-  seeAll: {
-    fontFamily:     "var(--font-body), 'DM Sans', sans-serif",
-    fontSize:       "12px",
-    fontWeight:     500,
-    color:          "#C8601A",
-    textDecoration: "none",
-    whiteSpace:     "nowrap" as const,
-    alignSelf:      "flex-end",
-    paddingBottom:  "2px",
-    borderBottom:   "1px solid #C8601A",
-  },
-
-  // ── Trending Strip ──────────────────────────────────────────────────────
-  trendingSection: {
-    padding:         "40px 48px",
-    backgroundColor: "#ffffff",
-  },
-  stripDivider: {
-    height:          "1px",
-    backgroundColor: "#E8ECF5",
-    margin:          "0 -48px",      // full-width bleed past section padding
-    marginTop:       "12px",
-  },
-  scrollTrack: {
-    display:       "flex",
-    gap:           "14px",
-    overflowX:     "auto" as const,
-    paddingBottom: "8px",
-  },
-
-  // ── Browse by Theme ──────────────────────────────────────────────────────
-  // ── Browse by Theme ──────────────────────────────────────────────────────
-  themeHeader: {
-    padding:         "40px 48px 24px",
-    backgroundColor: "#ffffff",
-  },
-  themeGrid: {
-    display:             "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
-    gap:                 "14px",
-    padding:             "0 48px 48px",
-    backgroundColor:     "#ffffff",
-  },
-  themeCard: {
-    display:         "flex",
-    flexDirection:   "column" as const,
-    gap:             "6px",
-    padding:         "18px 16px",
-    borderRadius:    "12px",
-    border:          "1px solid #E8ECF5",
-    backgroundColor: "#ffffff",
-    textDecoration:  "none",
-    cursor:          "pointer",
-    transition:      "border-color 0.18s ease, box-shadow 0.18s ease",
-  },
-  themeIcon: {
-    fontSize:    "20px",
-    lineHeight:  1,
-    color:       "#4A5A82",
-    marginBottom: "4px",
-    fontStyle:   "normal",
-  },
-  themeTitle: {
-    fontFamily: "var(--font-display), 'Cormorant Garamond', serif",
-    fontSize:   "16px",
-    fontWeight: 600,
-    color:      "#2E3A5C",
-    lineHeight: 1.3,
-  },
-  themeSub: {
-    fontFamily: "var(--font-body), 'DM Sans', sans-serif",
-    fontSize:   "11px",
-    color:      "#6B6B80",
-    lineHeight: 1.45,
-  },
-};

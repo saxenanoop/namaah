@@ -6,6 +6,7 @@ import type { BabyName } from "@/data/names";
 import NameCard from "@/components/names/NameCard";
 import ShortlistButton from "@/components/names/ShortlistButton";
 import SurnameTest from "@/components/names/SurnameTest";
+import { PronunciationButton } from "@/components/names/PronunciationButton";
 
 // ─── Static generation ────────────────────────────────────────────────────────
 
@@ -45,11 +46,11 @@ const GENDER_STYLE: Record<BabyName["gender"], { bg: string; color: string }> = 
   girl:   { bg: "#FDE8F0", color: "#C85A8A" },
   unisex: { bg: "#F3E8FE", color: "#7B5EA7" },
 };
-const THEME_LABEL: Record<BabyName["theme"], string> = {
+const THEME_LABEL: Record<string, string> = {
   deity: "Deity", nature: "Nature", virtue: "Virtue",
   mythological: "Mythological", modern: "Modern", vedic: "Vedic",
 };
-const REGION_LABEL: Record<BabyName["region"], string> = {
+const REGION_LABEL: Record<string, string> = {
   north: "North India", south: "South India", west: "West India",
   east: "East India", "pan-india": "Pan India",
 };
@@ -82,7 +83,7 @@ export default function NameDetailPage({
   return (
     <article>
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
-      <header style={s.hero}>
+      <header style={s.hero} className="name-hero">
         <div style={s.heroInner}>
 
           {/* Breadcrumb */}
@@ -103,23 +104,28 @@ export default function NameDetailPage({
             <span style={{ ...s.badge, backgroundColor: gStyle.bg, color: gStyle.color }}>
               {GENDER_LABEL[name.gender]}
             </span>
-            <span style={{ ...s.badge, backgroundColor: "#FFF8E7", color: "#B8860B" }}>
-              {THEME_LABEL[name.theme]}
-            </span>
-            <span style={{ ...s.badge, backgroundColor: "#E8ECF5", color: "#4A5A82" }}>
-              {REGION_LABEL[name.region]}
-            </span>
+            {name.theme && THEME_LABEL[name.theme] && (
+              <span style={{ ...s.badge, backgroundColor: "#FFF8E7", color: "#B8860B" }}>
+                {THEME_LABEL[name.theme]}
+              </span>
+            )}
+            {name.region && REGION_LABEL[name.region] && (
+              <span style={{ ...s.badge, backgroundColor: "#E8ECF5", color: "#4A5A82" }}>
+                {REGION_LABEL[name.region]}
+              </span>
+            )}
           </div>
 
-          {/* Shortlist CTA */}
-          <div style={{ marginTop: "20px" }}>
+          {/* Shortlist CTA + Pronunciation */}
+          <div style={{ marginTop: "20px", display: "flex", flexDirection: "column", gap: "0" }}>
             <ShortlistButton nameObj={name} />
+            <PronunciationButton name={name.name} hindiName={name.nameHindi} />
           </div>
         </div>
       </header>
 
       {/* ── Details grid ──────────────────────────────────────────────────── */}
-      <div style={s.grid}>
+      <div style={s.grid} className="name-details-grid">
 
         {/* ── LEFT COLUMN ───────────────────────────────────────────────── */}
         <div style={s.leftCol}>
@@ -252,12 +258,14 @@ export default function NameDetailPage({
 
       {/* ── Similar names ─────────────────────────────────────────────────── */}
       {similar.length > 0 && (
-        <section style={s.similarSection}>
+        <section style={s.similarSection} className="name-similar-section">
           <div style={s.similarHeader}>
             <h2 style={s.similarHeading}>You might also like</h2>
-            <Link href={`/search?theme=${name.theme}`} style={s.seeAll}>
-              More {THEME_LABEL[name.theme]} names →
-            </Link>
+            {name.theme && THEME_LABEL[name.theme] && (
+              <Link href={`/search?theme=${name.theme}`} style={s.seeAll}>
+                More {THEME_LABEL[name.theme]} names →
+              </Link>
+            )}
           </div>
           <div style={s.similarGrid}>
             {similar.map((n) => (
