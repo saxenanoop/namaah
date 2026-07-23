@@ -48,6 +48,8 @@ export const metadata: Metadata = {
   },
 };
 
+import { ThemeProvider } from "@/context/ThemeContext";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -58,7 +60,7 @@ export default function RootLayout({
       <body
         className={`${playfair.variable} ${inter.variable} ${devanagari.variable} font-body antialiased bg-cream text-charcoal min-h-screen flex flex-col selection:bg-saffron-light selection:text-saffron-deep`}
       >
-        {children}
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   );

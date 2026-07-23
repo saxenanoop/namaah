@@ -6,6 +6,12 @@
   body {
     background-color: #FFF8F0;
     color: #2C3E50;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  .dark body {
+    background-color: #121824;
+    color: #E2E8F0;
   }
 }
 

@@ -47,20 +47,27 @@ export default function NameCard({
   return (
     <div
       onClick={() => onViewDetails?.(name)}
-      className="card-hover-effect group bg-white rounded-card p-5 border border-saffron/15 shadow-soft hover:border-saffron/40 flex flex-col justify-between cursor-pointer relative"
+      className="card-hover-effect group bg-white dark:bg-slate-800 rounded-card p-5 border border-saffron/15 dark:border-saffron/20 shadow-soft hover:border-saffron/40 flex flex-col justify-between cursor-pointer relative text-left"
     >
       {/* Card Header: Name + Devanagari & Heart Button */}
       <div>
         <div className="flex items-start justify-between gap-2 mb-1.5">
           <div>
             {/* English Name (Large, bold) */}
-            <h3 className="font-heading text-xl font-bold text-charcoal group-hover:text-saffron-deep transition-colors tracking-tight">
+            <h3 className="font-heading text-xl font-bold text-charcoal dark:text-white group-hover:text-saffron-deep dark:group-hover:text-saffron transition-colors tracking-tight">
               {name.name}
             </h3>
-            {/* Devanagari Script */}
-            <p className="font-devanagari text-sm font-semibold text-saffron-deep/90 mt-0.5">
-              {name.nameHindi}
-            </p>
+            {/* Devanagari Script & Phonetic */}
+            <div className="flex items-center gap-2 mt-0.5">
+              <p className="font-devanagari text-sm font-semibold text-saffron-deep dark:text-saffron">
+                {name.nameHindi}
+              </p>
+              {name.phonetic && (
+                <span className="text-[10px] font-semibold text-teal dark:text-teal-light bg-teal-light/60 dark:bg-teal/20 px-2 py-0.5 rounded-md">
+                  🗣️ {name.phonetic}
+                </span>
+              )}
+            </div>
           </div>
 
           {/* Heart Icon Button with animation */}

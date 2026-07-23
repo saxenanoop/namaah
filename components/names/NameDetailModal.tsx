@@ -108,12 +108,19 @@ export default function NameDetailModal({
 
           <div className="flex items-baseline justify-between gap-4">
             <div>
-              <h2 className="font-heading text-3xl sm:text-4xl font-extrabold text-charcoal tracking-tight">
+              <h2 className="font-heading text-3xl sm:text-4xl font-extrabold text-charcoal dark:text-white tracking-tight">
                 {name.name}
               </h2>
-              <p className="font-devanagari text-2xl font-bold text-saffron-deep mt-1">
-                {name.nameHindi}
-              </p>
+              <div className="flex items-center gap-3 mt-1">
+                <p className="font-devanagari text-2xl font-bold text-saffron-deep dark:text-saffron">
+                  {name.nameHindi}
+                </p>
+                {name.phonetic && (
+                  <span className="text-xs font-semibold text-teal dark:text-teal-light bg-teal-light/70 dark:bg-teal/20 px-2.5 py-1 rounded-md border border-teal/20">
+                    🗣️ {name.phonetic}
+                  </span>
+                )}
+              </div>
             </div>
 
             {/* Shortlist Action */}

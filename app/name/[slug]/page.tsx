@@ -80,8 +80,22 @@ export default function NameDetailPage({
   const pop    = POP_CONFIG[name.popularity];
   const gStyle = GENDER_STYLE[name.gender];
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "DefinedTerm",
+    "name": name.name,
+    "alternateName": name.nameHindi,
+    "description": name.meaning,
+    "inDefinedTermSet": "Namaah Hindu Baby Names",
+    "termCode": name.slug,
+  };
+
   return (
     <article>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
       <header style={s.hero} className="name-hero">
         <div style={s.heroInner}>
@@ -98,6 +112,11 @@ export default function NameDetailPage({
           {/* Name */}
           <h1 style={s.nameHeading}>{name.name}</h1>
           <p  style={s.devanagari}>{name.nameHindi}</p>
+          {name.phonetic && (
+            <p style={{ fontFamily: "var(--font-body)", fontSize: "14px", color: "#138D75", fontWeight: 600, marginTop: "4px" }}>
+              🗣️ Phonetic Pronunciation: {name.phonetic}
+            </p>
+          )}
 
           {/* Badges */}
           <div style={s.badgeRow}>

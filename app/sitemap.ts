@@ -49,6 +49,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "never",
       priority:        0.3,
     },
+    {
+      url:             `${BASE_URL}/origins`,
+      lastModified:    new Date(),
+      changeFrequency: "monthly",
+      priority:        0.8,
+    },
   ];
 
   // ── Rashi detail pages (12) ──────────────────────────────────────────────
